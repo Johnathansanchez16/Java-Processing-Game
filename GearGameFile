@@ -1,0 +1,291 @@
+PImage backgroundImage;
+PImage generator;
+PImage player;
+PImage gateKey;
+PImage gear;
+PImage textBox;
+PImage winScreen;
+PImage[] lightning=new PImage[10];
+float x=700;
+float y=500;
+float speed=5;
+float vx = 0;
+float vy = 0;
+int charHeight=60;
+int charWidth=30;
+int buldge=6;
+int numOfGears=3;
+int gearLength=40;
+int gearsPickedUp=0;
+int frame=0;
+boolean level1=true;
+boolean keyMessage;
+boolean gateMessage;
+boolean keyPickup;
+boolean gateOpen;
+boolean level2;
+boolean lightsOn;
+boolean gearBound;
+boolean gameWin;
+ArrayList<gear>gears=new ArrayList<>();
+void setup() {
+  size(800, 700);
+  backgroundImage = loadImage("background-image.png");
+  generator=loadImage("pixel-generator.png");
+  player=loadImage("player.png");
+  gear=loadImage("gear.png");
+  gateKey=loadImage("key.png");
+  textBox=loadImage("text-box.png");
+  winScreen=loadImage("winScreen.png");
+  lightning[0]=loadImage("./lightningFrames/lightning1.png");
+  lightning[1]=loadImage("./lightningFrames/lightning2.png");
+  lightning[2]=loadImage("./lightningFrames/lightning3.png");
+  lightning[3]=loadImage("./lightningFrames/lightning4.png");
+  lightning[4]=loadImage("./lightningFrames/lightning5.png");
+  lightning[5]=loadImage("./lightningFrames/lightning6.png");
+  lightning[6]=loadImage("./lightningFrames/lightning7.png");
+  lightning[7]=loadImage("./lightningFrames/lightning8.png");
+  lightning[8]=loadImage("./lightningFrames/lightning9.png");
+  lightning[9]=loadImage("./lightningFrames/lightning10.png");
+  int[] columns = {0,100, 300, 500, 700};
+  int[] rows={68,136,204,272};
+  
+for(int i=0;i<numOfGears;i++){
+  int randomIndex = int(random(columns.length));
+  int randomColumn = columns[randomIndex]+25;
+    
+  randomIndex = int(random(rows.length));
+  int randomRow = rows[randomIndex];
+  gears.add(new gear(randomColumn,randomColumn+gearLength,randomRow,randomRow+gearLength));
+    
+}
+}
+
+void draw() {
+  x = constrain(x, 0, width - charWidth);
+  y = constrain(y, 0, 600 - charHeight);
+  
+  
+  
+  //level 1
+  //lower right section
+  if(x>520&&y>330){
+   y = constrain(y, 340, 600);
+   if(y<500){
+     x=constrain(x,535,800);
+     
+   }
+  }
+  if(x>140-charWidth&&x<305&&y>500-buldge){
+    y=constrain(y,500,600); 
+  }
+  if(x>140&&x<535&&y>500-buldge&&!level2){
+    y=constrain(y,500,600);
+  }
+  if(x>370&&x<535&&y>500-buldge){
+    y=constrain(y,500,600); 
+  }
+  if(x<140-charWidth&&y>340-buldge){
+    y=constrain(y, 340, 600);
+    if(y<500){
+     x=constrain(x,0,130-charWidth);
+   }
+  }
+  //enterance walls
+  if(x>140-buldge&&x<535-charWidth+buldge&&y>340-buldge&&y<500){
+    x=constrain(x,140,535-charWidth);
+    if(x<305||x<535){
+      y=constrain(y,0,500-charHeight-buldge);
+    }
+  }
+  
+  //house walls
+  //top left
+  if(y>240-buldge&&x>160&&x<320){
+    y= constrain(y,240,600);
+  }
+  if(y<130+charHeight+buldge&&x>160-charWidth&&x<320){
+    y= constrain(y,0,130-charHeight);
+  }
+  if(x<160-charWidth&&y>130-charHeight&&y<240){
+    x=constrain(x,0,160-charWidth-buldge);
+  }
+  //middle house
+  if(x<400&&x>300&&y<240&&y>buldge){
+    if(y>130-charHeight){
+      x=constrain(x,320+10,380-charWidth);
+    }
+    x=constrain(x,0,380-charWidth);
+  }
+  if(x>380-charWidth&&x<500&&y<60){
+    y=constrain(y,0,buldge);
+  }
+  if(y>60&&y<240&&x>400){
+    x=constrain(x,500,800-charWidth);
+  }
+  if(x<510&&x>380-charWidth&&y<400&&y>200){
+    if(x>450){
+      y=constrain(y,240,500-charHeight);
+    }
+    else{
+      y=constrain(y,245,340-charHeight);
+    }
+    
+  }
+  //bottom right
+  if(y>240-charHeight&&y<340-charHeight&&x>660-charWidth){
+    x=constrain(x,660,800);
+  }
+  if(y<250&&x>580-charWidth&&x<660){
+    y=constrain(y,0,240-charHeight);
+  }
+  if(x<580&&y>240-charHeight&&y<340-charHeight){
+    x=constrain(x,0,580-charWidth);
+  }
+  //bottom
+  
+  if(y>340-charHeight&&y<460&&x>400&&x<530){
+    x=constrain(x,460,535-charWidth);
+  }
+  if(x>160&&x<380&&y>330-charHeight&&y<500){
+    x=constrain(x,140,370-charWidth);
+  }
+  
+  
+  
+  
+  
+  x+=vx;
+  y+=vy;
+  image(backgroundImage,0,0,width,600);
+  image(generator,630,50,100,100);
+  fill(3, 11, 252);
+  image(player,x,y,charWidth+10, charHeight);
+  if(!keyPickup&&!level2){
+    image(gateKey,40,430,30,30);
+  }
+  if(level2){
+    if(gearsPickedUp!=numOfGears){
+      frame=(frame+1)%10;
+      image(lightning[frame],650,70,70,70);
+    }
+  }
+  
+  image(textBox,0,600,800,100);
+  
+  
+  if(y<=480&&x<=90&&y>=420&&x>=30&&!keyPickup&&!level2){
+    message("press e to pick up key!");
+  }
+  if(y>=500&&x<=370&&x>=300&&!keyPickup&&!level2){
+    message("a key is needed to open the gate");
+  }
+  if(x<=370&&x>=300&&keyPickup){
+    message("press e to open gate");
+  }
+  if(y<150&&x>630-charWidth&&x<730&&gearsPickedUp!=numOfGears){
+    message("The generator is broken you need to find "+(numOfGears-gearsPickedUp)+" gears to fix it");
+  }
+  if(y<=480&&x<=90&&y>=420&&x>=30&&keyPickup){
+    message("gate key obtained");
+  }
+  if(x<370&&x>300&&y>500-charHeight&&level2){
+    message("the gate is open!");
+  }
+  if(gearBound){
+    message("press e to pickup");
+    if(key=='e'){
+      gearsPickedUp++;
+      System.out.println("gear picked up");
+    }
+  }
+  if(gearsPickedUp==numOfGears&&!gameWin){
+    if(y<150&&x>630-charWidth&&x<730){
+      message("press e to fix generator");
+      if(key=='e'){
+        gameWin=true;
+      }
+    }
+    else{
+      message("Generator is ready to fix");
+    }
+  }
+  for (gear g : gears) {
+    g.printGear();
+    g.gearFoundMessage();
+  }
+  if(gameWin){
+    image(winScreen,250,150,300,300);
+    message("You Won!!");
+  }
+  
+  
+  
+}
+
+void keyPressed(){
+  if(key=='a'&&x>0){
+    vx=-speed;
+    vy=0;
+  }
+  if(key=='d'){
+    vx=speed;
+    vy=0;
+  }
+  if(key=='w'){
+    vy=-speed;
+    vx=0;
+  }
+  if(key=='s'){
+    vy=speed;
+    vx=0;
+  }
+  if(key=='e'&&y<480&&x<90){
+    keyPickup=true;
+  }
+  if(key=='e'&&x<370&&x>300&&keyPickup){
+    level2=true;
+    keyPickup=false;
+  }
+  
+}
+public void message(String s){
+  fill(255);
+  textSize(20); // Set text size
+  text(s, 50, 650);
+}
+void keyReleased(){
+  vx=0;
+  vy=0;
+}
+class gear{
+  int leftBound;
+  int rightBound;
+  int topBound;
+  int bottomBound;
+  
+  public gear(int left,int right,int top, int bottom){
+    leftBound=left;
+    rightBound=right;
+    topBound=top;
+    bottomBound=bottom;
+  }
+  public void printGear(){
+    image(gear,leftBound,topBound,gearLength,gearLength);
+  }
+  public void gearFoundMessage(){
+    if(y>topBound-charHeight&&y<bottomBound&&x>leftBound-charWidth&&x<rightBound){
+      message("press e to pick up gear");
+      
+        if(key=='e'){
+          message("gear picked up");
+          gearsPickedUp++;
+          leftBound=-100;
+          rightBound=-100;
+          topBound=-100;
+          bottomBound=-100;
+        }
+    }
+  }
+  
+}
